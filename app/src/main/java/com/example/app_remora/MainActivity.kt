@@ -2,136 +2,100 @@ package com.example.app_remora
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.compose.animation.core.tween
-
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.app_remora.ui.login.RLogin
 import com.example.app_remora.ui.theme.App_RemoraTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        //no creo que sea necesario a menos que el diseño lo amerite, ya que si llegas a ocupar colores incorrectos puedes quitar la visibilidad de la barra de herramientas del dispositivo
+        //enableEdgeToEdge()
+
+
         setContent {
             App_RemoraTheme {
-                PantallaPrincipal()
+                RLogin()
             }
         }
     }
 }
 
 @Composable
-fun TituloyFoto() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 24.dp),
-        contentAlignment = Alignment.Center
+fun TituloyFoto(onClick: () -> Unit) {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.offset(y = 25.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.offset(y = 25.dp)
+        Image(
+            painter = painterResource(id = R.drawable.foto1),
+            contentDescription = "Foto de perfil",
+            modifier = Modifier
+                .size(180.dp)
+                .clip(CircleShape)
+        )
+
+        Text(
+            text = stringResource(id = R.string.title_login),
+            style = MaterialTheme.typography.headlineSmall,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedButton (
+            onClick = onClick,
+            shape = CircleShape,
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Red,
+                contentColor = Color.White
+            ),
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.foto1),
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .size(180.dp)
-                    .clip(CircleShape)
-            )
-
-            Text(
-                text = "Hola, soy Gerardo y esta es la primera version de la App llamada Rémora",
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
-
-@Composable
-fun BotonCV(
-    modifier: Modifier = Modifier,
-    previewMode: Boolean = false,
-    onClick: () -> Unit
-) {
-    var mostrarBoton by remember { mutableStateOf(false) }
-
-    if (!previewMode) {
-        LaunchedEffect(Unit) {
-            delay(500)
-            mostrarBoton = true
+            Text("Ver CV")
         }
     }
 
-    var bounceOffset by remember { mutableStateOf(0.dp) }
-    val animatedOffset by animateDpAsState(
-        targetValue = bounceOffset,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "bounce"
-    )
-
-    if (!previewMode && mostrarBoton) {
-        LaunchedEffect(Unit) {
-            repeat(3) {
-                bounceOffset = (-10).dp
-                delay(100)
-                bounceOffset = 0.dp
-                delay(100)
-            }
-        }
-    }
-
-    Box(modifier = modifier) {
-        AnimatedVisibility(
-            visible = mostrarBoton,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Button(
-                onClick = onClick,
-                shape = CircleShape,
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.offset(y = animatedOffset)
-            ) {
-                Text("Ver CV")
-            }
-        }
-    }
 }
 
 @Composable
@@ -201,89 +165,6 @@ fun LoginForm(
     }
 }
 
-@Composable
-fun PantallaPrincipal() {
-    var showDialog by remember { mutableStateOf(false) }
-
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var loggedIn by remember { mutableStateOf(false) }
-    var showLoginError by remember { mutableStateOf(false) }
-
-    var showCard by remember { mutableStateOf(true) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Aquí tu UI que ya tienes, por ejemplo:
-        TituloyFoto()
-
-        if (showCard) {
-            SwipeToDismissCard(onDismiss = { showCard = false })
-        }
-
-        // Tu botón o formulario acá abajo, con .align(Alignment.BottomCenter) o donde quieras
-    }
-
-
-    val validUsers = listOf(
-        "144109@corre0.com",
-        "12345@correo.com",
-        "123456@correo.com"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        TituloyFoto()
-
-        BotonCV(
-            onClick = { showDialog = true },
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = 320.dp)
-        )
-
-        ModalCV(showDialog = showDialog, onDismiss = { showDialog = false })
-
-        if (!loggedIn) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = 50.dp)
-            ) {
-                LoginForm(
-                    email = email,
-                    onEmailChange = { email = it },
-                    password = password,
-                    onPasswordChange = { password = it },
-                    onLogin = {
-                        if (email in validUsers && password == "udl123") {
-                            loggedIn = true
-                            showLoginError = false
-                        } else {
-                            showLoginError = true
-                        }
-                    },
-                    showError = showLoginError
-                )
-            }
-        } else {
-            Text(
-                text = "Hola",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.Green,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = 200.dp)
-            )
-        }
-    }
-}
 
 @Composable
 fun SwipeToDismissCard(onDismiss: () -> Unit) {
@@ -293,8 +174,8 @@ fun SwipeToDismissCard(onDismiss: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
-
+            .padding(16.dp)
+            .wrapContentHeight()
             .offset { IntOffset(offsetX.value.toInt(), 0) }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
@@ -321,20 +202,14 @@ fun SwipeToDismissCard(onDismiss: () -> Unit) {
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Text(text = "Desliza para eliminar o Ingresa para ver el contenido", color = Color.Black)
+            Text(
+                text = "Desliza para eliminar o Ingresa para ver el contenido",
+                color = Color.Black
+            )
         }
     }
 }
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    App_RemoraTheme {
-        PantallaPrincipal()
-    }
-}
